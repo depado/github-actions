@@ -3,14 +3,11 @@ name: Docker Build & Push
 on:
   workflow_call:
     inputs:
-      # Runner configuration
       runs-on:
         description: "Runner to use for the job"
         required: false
         type: string
         default: "ubuntu-latest"
-
-      # Docker configuration
       dockerfile:
         description: "Path to Dockerfile"
         required: false
@@ -21,13 +18,21 @@ on:
         required: false
         type: string
         default: "."
-
-      # Build platforms (for buildx)
       platforms:
         description: "Comma-separated list of platforms for buildx (enables buildx automatically)"
         required: false
         type: string
         default: ""
+      security-scan:
+        description: "Enable container security scanning"
+        required: false
+        type: boolean
+        default: true
+      scan-severity:
+        description: "Minimum severity for security scan (UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL)"
+        required: false
+        type: string
+        default: "CRITICAL"
 
 jobs:
   docker:
@@ -62,6 +67,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
           context: ${{ inputs.context }}
@@ -70,3 +76,26 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ inputs.platforms }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=docker,name=scan-target' || '' }}
+
+      - name: Run Trivy vulnerability scanner
+        if: inputs.security-scan
+        uses: aquasecurity/trivy-action@0.28.0
+        env:
+          TRIVY_DISABLE_VEX_NOTICE: true
+        with:
+          scan-type: "image"
+          scan-ref: ${{ github.event_name != 'pull_request' && format('ghcr.io/{0}:{1}', github.repository, steps.meta.outputs.version) || 'scan-target' }}
+          format: "table"
+          severity: ${{ inputs.scan-severity }}
+          exit-code: "1"
+          output: "trivy-results.txt"
+
+      - name: Display scan results
+        if: inputs.security-scan && always()
+        run: |
+          echo "## 🔍 Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat trivy-results.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
