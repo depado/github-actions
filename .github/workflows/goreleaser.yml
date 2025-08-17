@@ -1,0 +1,55 @@
+name: GoReleaser
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: "Runner to use for the job"
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      go-version:
+        description: "Go version to use"
+        required: false
+        type: string
+        default: "stable"
+      goreleaser-version:
+        description: "GoReleaser version to use"
+        required: false
+        type: string
+        default: "~> v2"
+      goreleaser-args:
+        description: "Arguments to pass to GoReleaser"
+        required: false
+        type: string
+        default: "release --clean"
+      working-directory:
+        description: "Working directory for the build"
+        required: false
+        type: string
+        default: "."
+
+jobs:
+  goreleaser:
+    name: "GoReleaser"
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
+        with:
+          distribution: goreleaser
+          version: ${{ inputs.goreleaser-version }}
+          args: ${{ inputs.goreleaser-args }}
+          workdir: ${{ inputs.working-directory }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

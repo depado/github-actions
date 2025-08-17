@@ -33,6 +33,21 @@ on:
         required: false
         type: string
         default: "CRITICAL"
+      enable-cleanup:
+        description: "Enable cleanup of untagged container images"
+        required: false
+        type: boolean
+        default: true
+      min-versions-to-keep:
+        description: "Minimum number of package versions to keep during cleanup"
+        required: false
+        type: number
+        default: 5
+
+    secrets:
+      cleanup-token:
+        description: "Token for deleting package versions (requires packages:delete scope)"
+        required: false
 
 jobs:
   docker:
@@ -99,3 +114,13 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat trivy-results.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Delete untagged container images
+        if: github.event_name != 'pull_request' && inputs.enable-cleanup
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          delete-only-untagged-versions: true
+          min-versions-to-keep: ${{ inputs.min-versions-to-keep }}
+          token: ${{ secrets.cleanup-token }}
