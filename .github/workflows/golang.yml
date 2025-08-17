@@ -5,50 +5,50 @@ on:
   workflow_call:
     inputs:
       runs-on:
-        description: 'Runner to use for jobs'
+        description: "Runner to use for jobs"
         required: false
         type: string
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       go-version-strategy:
         description: 'Go version strategy: "file" to use go.mod or "stable" for latest stable'
         required: false
         type: string
-        default: 'stable'
+        default: "stable"
       enable-coverage:
-        description: 'Enable coverage reporting'
+        description: "Enable coverage reporting"
         required: false
         type: boolean
         default: true
       golangci-timeout:
-        description: 'Timeout for golangci-lint'
+        description: "Timeout for golangci-lint"
         required: false
         type: string
-        default: '3m'
+        default: "3m"
       working-directory:
-        description: 'Working directory for the project'
+        description: "Working directory for the project"
         required: false
         type: string
-        default: '.'
+        default: "."
       build-command:
-        description: 'Build command to run'
+        description: "Build command to run"
         required: false
         type: string
-        default: 'make build'
+        default: "make build"
       fail-coverage:
-        description: 'Fail the build if coverage is below threshold'
+        description: "Fail the build if coverage is below threshold"
         required: false
         type: string
-        default: 'never'
+        default: "never"
       security-scan:
-        description: 'Enable Trivy security scanning'
+        description: "Enable Trivy security scanning"
         required: false
         type: boolean
         default: true
       security-scan-severity:
-        description: 'Minimum severity for security scan (UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL)'
+        description: "Minimum severity for security scan (UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL)"
         required: false
         type: string
-        default: 'HIGH,CRITICAL'
+        default: "HIGH,CRITICAL"
 
 jobs:
   build:
@@ -140,7 +140,7 @@ jobs:
 
   security:
     name: "Security Scan"
-    if: inputs.security-scan == true
+    if: inputs.security-scan == true && github.event_name != 'pull_request'
     runs-on: ${{ inputs.runs-on }}
     needs: build
 

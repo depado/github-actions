@@ -93,20 +93,20 @@ jobs:
           platforms: ${{ inputs.platforms }}
 
       - name: Run Trivy vulnerability scanner
-        if: inputs.security-scan
+        if: inputs.security-scan && github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # 0.32.0
         env:
           TRIVY_DISABLE_VEX_NOTICE: true
         with:
           scan-type: "image"
-          scan-ref: ${{ github.event_name != 'pull_request' && format('ghcr.io/{0}:{1}', github.repository, steps.meta.outputs.version) || steps.build.outputs.imageid }}
+          scan-ref: ${{ format('ghcr.io/{0}:{1}', github.repository, steps.meta.outputs.version) }}
           format: "table"
           severity: ${{ inputs.scan-severity }}
           exit-code: "1"
           output: "trivy-results.txt"
 
       - name: Display scan results
-        if: inputs.security-scan && always()
+        if: inputs.security-scan && github.event_name != 'pull_request' && always()
         run: |
           echo "## 🔍 Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
