@@ -34,6 +34,11 @@ on:
         required: false
         type: string
         default: "make build"
+      skip-build:
+        description: "Skip build step (for libraries)"
+        required: false
+        type: boolean
+        default: false
       fail-coverage:
         description: "Fail the build if coverage is below threshold"
         required: false
@@ -53,6 +58,7 @@ on:
 jobs:
   build:
     name: "Build"
+    if: inputs.skip-build == false
     runs-on: ${{ inputs.runs-on }}
     defaults:
       run:
@@ -78,7 +84,6 @@ jobs:
 
   test:
     name: "Test & coverage"
-    needs: build
     runs-on: ${{ inputs.runs-on }}
     defaults:
       run:
@@ -110,7 +115,6 @@ jobs:
 
   golangci:
     name: "GolangCI"
-    needs: build
     runs-on: ${{ inputs.runs-on }}
     defaults:
       run:
@@ -142,7 +146,6 @@ jobs:
     name: "Security Scan"
     if: inputs.security-scan == true && github.event_name != 'pull_request'
     runs-on: ${{ inputs.runs-on }}
-    needs: build
 
     steps:
       - name: Checkout code
