@@ -122,13 +122,17 @@ to generate changelogs.
 
 ### Usage
 
-Typically triggered on a tag push:
+Typically triggered on a tag push. The workflow requires write access to
+repository contents in order to create GitHub releases and upload artifacts:
 
 ```yaml
 on:
   push:
     tags:
       - "v*"
+
+permissions:
+  contents: write
 
 jobs:
   goreleaser:
