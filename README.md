@@ -11,6 +11,7 @@ digest for security and reproducibility.
 - [Docker](#docker-workflow) — Build and push Docker images to GHCR
 - [Golang](#golang-workflow) — Build, test, lint, and scan Go projects
 - [GoReleaser](#goreleaser-workflow) — Release Go projects with GoReleaser
+- [GoReleaser with SBOM](#goreleaser-sbom-workflow) — Release Go projects with GoReleaser and SBOM generation
 
 ---
 
@@ -151,6 +152,44 @@ jobs:
 
 `GITHUB_TOKEN` is automatically passed to GoReleaser for creating releases and
 uploading artifacts.
+
+---
+
+## GoReleaser SBOM Workflow
+
+**File:** `.github/workflows/goreleaser-sbom.yml`
+
+Identical to the [GoReleaser workflow](#goreleaser-workflow) with one addition:
+installs [syft](https://github.com/anchore/syft) before running GoReleaser so
+that the `sboms` section in `.goreleaser.yaml` can generate SBOM artifacts.
+
+### Usage
+
+Same as the GoReleaser workflow — just reference the `goreleaser-sbom` variant:
+
+```yaml
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    uses: depado/github-actions/.github/workflows/goreleaser-sbom.yml@main
+```
+
+### Inputs
+
+| Input | Type | Default | Description |
+|---|---|---|---|
+| `runs-on` | `string` | `ubuntu-latest` | Runner to use for the job |
+| `go-version` | `string` | `stable` | Go version to set up |
+| `goreleaser-version` | `string` | `~> v2` | GoReleaser version constraint |
+| `goreleaser-args` | `string` | `release --clean` | Arguments passed to the `goreleaser` CLI |
+| `working-directory` | `string` | `.` | Working directory for the build |
 
 ---
 
