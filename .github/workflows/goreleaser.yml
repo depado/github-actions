@@ -28,6 +28,11 @@ on:
         required: false
         type: string
         default: "."
+      enable-sbom:
+        description: "Install syft to enable SBOM generation"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   goreleaser:
@@ -43,6 +48,10 @@ jobs:
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
         with:
           go-version: ${{ inputs.go-version }}
+
+      - name: Install syft
+        if: inputs.enable-sbom
+        uses: anchore/sbom-action/download-syft@v0
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7
