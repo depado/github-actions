@@ -116,8 +116,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ inputs.platforms }}
           provenance: false
-          build-args: |
-            VERSION=${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
           cache-from: ${{ inputs.cache && 'type=gha' || '' }}
           cache-to: ${{ inputs.cache && 'type=gha,mode=max' || '' }}
 
