@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: "Dockerfile"
+      target:
+        description: "Dockerfile build target stage"
+        required: false
+        type: string
+        default: ""
       context:
         description: "Build context path"
         required: false
@@ -113,6 +118,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ inputs.platforms }}
+          target: ${{ inputs.target }}
           provenance: false
           cache-from: ${{ inputs.cache && 'type=gha' || '' }}
           cache-to: ${{ inputs.cache && 'type=gha,mode=max' || '' }}
