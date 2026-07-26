@@ -77,7 +77,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-          fetch-tags: true
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -117,6 +116,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ inputs.platforms }}
           provenance: false
+          build-args: |
+            VERSION=${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
           cache-from: ${{ inputs.cache && 'type=gha' || '' }}
           cache-to: ${{ inputs.cache && 'type=gha,mode=max' || '' }}
 
