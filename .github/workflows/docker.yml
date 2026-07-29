@@ -45,11 +45,16 @@ on:
         required: false
         type: boolean
         default: true
-      min-versions-to-keep:
-        description: "Minimum number of package versions to keep during cleanup"
+      cleanup-cut-off:
+        description: "Minimum age for untagged images to be deleted (e.g., 1d for 1 day)"
         required: false
-        type: number
-        default: 5
+        type: string
+        default: "1d"
+      cleanup-account:
+        description: "Account type for package cleanup: an org name, or 'user' for a personal account"
+        required: false
+        type: string
+        default: "user"
 
       tag-suffix:
         description: 'Suffix to append to image tags (e.g., "-packed")'
@@ -67,11 +72,6 @@ on:
         required: false
         type: boolean
         default: true
-
-    secrets:
-      cleanup-token:
-        description: "Token for deleting package versions (requires packages:delete scope)"
-        required: false
 
 jobs:
   docker:
@@ -147,10 +147,10 @@ jobs:
 
       - name: Delete untagged container images
         if: github.event_name != 'pull_request' && inputs.enable-cleanup
-        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
+        uses: snok/container-retention-policy@d3bdcf5ce9b05f685154e4a16c39233b245e3d53 # v3.1.0
         with:
-          package-name: ${{ github.event.repository.name }}
-          package-type: container
-          delete-only-untagged-versions: true
-          min-versions-to-keep: ${{ inputs.min-versions-to-keep }}
-          token: ${{ secrets.cleanup-token }}
+          account: ${{ inputs.cleanup-account }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: ${{ github.event.repository.name }}
+          tag-selection: untagged
+          cut-off: ${{ inputs.cleanup-cut-off }}
