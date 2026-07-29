@@ -1,0 +1,33 @@
+name: Container Retention Policy
+
+on:
+  workflow_call:
+    inputs:
+      account:
+        description: "Account type: an org name, or 'user' for a personal account"
+        required: false
+        type: string
+        default: "user"
+      image-names:
+        description: "Space-separated image names to clean up"
+        required: false
+        type: string
+        default: ""
+      cut-off:
+        description: "Minimum age for untagged images to be deleted (e.g., 1d for 1 day)"
+        required: false
+        type: string
+        default: "1d"
+
+jobs:
+  cleanup:
+    name: Container Retention Policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: snok/container-retention-policy@d3bdcf5ce9b05f685154e4a16c39233b245e3d53 # v3.1.0
+        with:
+          account: ${{ inputs.account }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: ${{ inputs.image-names || github.event.repository.name }}
+          tag-selection: untagged
+          cut-off: ${{ inputs.cut-off }}
