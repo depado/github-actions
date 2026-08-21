@@ -126,7 +126,7 @@ jobs:
 | Input | Type | Default | Description |
 |---|---|---|---|
 | `runs-on` | `string` | `ubuntu-latest` | Runner to use for all jobs |
-| `go-version-strategy` | `string` | `stable` | `file` to read the version from `go.mod`, `stable` for the latest stable Go release |
+| `go-version-strategy` | `string` | `file` | `file` to read the version from `go.mod`, `stable` for the latest stable Go release |
 | `enable-coverage` | `boolean` | `true` | Enable coverage reporting via `lazyguru/go-coverage-action` |
 | `fail-coverage` | `string` | `never` | Fail the build if coverage drops. Passed directly to `go-coverage-action` (e.g. `never`, `any`) |
 | `golangci-timeout` | `string` | `3m` | Timeout for the golangci-lint run |
