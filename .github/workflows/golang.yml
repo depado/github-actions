@@ -4,11 +4,11 @@ name: Golang
 on:
   workflow_call:
     inputs:
-      runs-on:
-        description: "Runner to use for jobs"
+      runner-labels:
+        description: 'Runner labels as a JSON array, e.g. ["ubuntu-latest"] or ["self-hosted","x64"]'
         required: false
         type: string
-        default: "ubuntu-latest"
+        default: '["ubuntu-latest"]'
       go-version-strategy:
         description: 'Go version strategy: "file" to use go.mod or "stable" for latest stable'
         required: false
@@ -64,7 +64,7 @@ jobs:
   build:
     name: "Build"
     if: inputs.skip-build == false
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(inputs.runner-labels) }}
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -93,7 +93,7 @@ jobs:
 
   test:
     name: "Test & coverage"
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(inputs.runner-labels) }}
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -129,7 +129,7 @@ jobs:
 
   golangci:
     name: "GolangCI"
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(inputs.runner-labels) }}
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -159,7 +159,7 @@ jobs:
   security:
     name: "Security Scan"
     if: inputs.security-scan == true && github.event_name != 'pull_request'
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(inputs.runner-labels) }}
 
     steps:
       - name: Checkout code

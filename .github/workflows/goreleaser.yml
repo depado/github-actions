@@ -3,11 +3,11 @@ name: GoReleaser
 on:
   workflow_call:
     inputs:
-      runs-on:
-        description: "Runner to use for the job"
+      runner-labels:
+        description: 'Runner labels as a JSON array, e.g. ["ubuntu-latest"] or ["self-hosted","x64"]'
         required: false
         type: string
-        default: "ubuntu-latest"
+        default: '["ubuntu-latest"]'
       go-version:
         description: "Go version to use"
         required: false
@@ -37,7 +37,7 @@ on:
 jobs:
   goreleaser:
     name: "GoReleaser"
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(inputs.runner-labels) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
