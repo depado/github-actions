@@ -6,6 +6,10 @@ other repositories to provide a consistent CI/CD experience across projects.
 All third-party actions used in these workflows are pinned to a specific commit
 digest for security and reproducibility.
 
+Runner selection: workflows that run jobs accept a `runner-labels` input.
+Because `workflow_call` inputs cannot be arrays, its value is a JSON array of
+labels, for example `["ubuntu-latest"]` (the default) or `["self-hosted","x64"]`.
+
 ## Workflows
 
 - [Docker](#docker-workflow) — Build and push Docker images to GHCR
@@ -45,7 +49,7 @@ after all builds finish.
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `runs-on` | `string` | `ubuntu-latest` | Runner to use for the job |
+| `runner-labels` | `string` | `["ubuntu-latest"]` | Runner labels as a JSON array (e.g. `["self-hosted","x64"]`) |
 | `dockerfile` | `string` | `Dockerfile` | Path to the Dockerfile |
 | `context` | `string` | `.` | Docker build context path |
 | `platforms` | `string` | `""` | Comma-separated list of platforms (e.g. `linux/amd64,linux/arm64`). Enables Buildx automatically when set |
@@ -125,13 +129,14 @@ jobs:
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `runs-on` | `string` | `ubuntu-latest` | Runner to use for all jobs |
+| `runner-labels` | `string` | `["ubuntu-latest"]` | Runner labels as a JSON array (e.g. `["self-hosted","x64"]`) |
 | `go-version-strategy` | `string` | `file` | `file` to read the version from `go.mod`, `stable` for the latest stable Go release |
 | `enable-coverage` | `boolean` | `true` | Enable coverage reporting via `lazyguru/go-coverage-action` |
 | `fail-coverage` | `string` | `never` | Fail the build if coverage drops. Passed directly to `go-coverage-action` (e.g. `never`, `any`) |
 | `golangci-timeout` | `string` | `3m` | Timeout for the golangci-lint run |
 | `working-directory` | `string` | `.` | Working directory for the project (useful for monorepos) |
 | `build-command` | `string` | `make build` | Command used to build the project |
+| `setup-command` | `string` | `""` | Command run after checkout and Go setup in the build and test jobs (e.g. install tools or generate assets) |
 | `skip-build` | `boolean` | `false` | Skip the build job entirely (useful for libraries) |
 | `security-scan` | `boolean` | `true` | Enable Trivy filesystem security scanning |
 | `security-scan-severity` | `string` | `HIGH,CRITICAL` | Minimum severity that fails the build. The security scan job is skipped on pull requests |
@@ -178,7 +183,7 @@ jobs:
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `runs-on` | `string` | `ubuntu-latest` | Runner to use for the job |
+| `runner-labels` | `string` | `["ubuntu-latest"]` | Runner labels as a JSON array (e.g. `["self-hosted","x64"]`) |
 | `go-version` | `string` | `stable` | Go version to set up |
 | `goreleaser-version` | `string` | `~> v2` | GoReleaser version constraint |
 | `goreleaser-args` | `string` | `release --clean` | Arguments passed to the `goreleaser` CLI |
