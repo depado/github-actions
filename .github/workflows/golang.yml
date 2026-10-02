@@ -19,6 +19,11 @@ on:
         required: false
         type: boolean
         default: true
+      race:
+        description: "Run the tests with the Go race detector (requires cgo; disable on runners without a C toolchain)"
+        required: false
+        type: boolean
+        default: true
       golangci-timeout:
         description: "Timeout for golangci-lint"
         required: false
@@ -125,6 +130,9 @@ jobs:
         with:
           fail-coverage: ${{ inputs.fail-coverage }}
           cover-pkg: ./...
+          # The action has no dedicated race flag: it takes go test arguments
+          # as a JSON array. Race is on by default (race: false opts out).
+          test-args: ${{ inputs.race && '["-race"]' || '[]' }}
           add-comment: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
 
   golangci:

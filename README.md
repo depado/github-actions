@@ -132,6 +132,7 @@ jobs:
 | `runner-labels` | `string` | `["ubuntu-latest"]` | Runner labels as a JSON array (e.g. `["self-hosted","x64"]`) |
 | `go-version-strategy` | `string` | `file` | `file` to read the version from `go.mod`, `stable` for the latest stable Go release |
 | `enable-coverage` | `boolean` | `true` | Enable coverage reporting via `lazyguru/go-coverage-action` |
+| `race` | `boolean` | `true` | Run the tests with the Go race detector (requires cgo; disable with `false` on runners without a C toolchain) |
 | `fail-coverage` | `string` | `never` | Fail the build if coverage drops. Passed directly to `go-coverage-action` (e.g. `never`, `any`) |
 | `golangci-timeout` | `string` | `3m` | Timeout for the golangci-lint run |
 | `working-directory` | `string` | `.` | Working directory for the project (useful for monorepos) |
@@ -146,7 +147,7 @@ jobs:
 | Job | Description |
 |---|---|
 | `build` | Checks out the code, sets up Go, and runs `build-command`. Skipped when `skip-build` is `true` |
-| `test` | Runs tests and generates a coverage report using [`lazyguru/go-coverage-action`](https://github.com/lazyguru/go-coverage-action). Coverage comments are added to PRs from the same repository |
+| `test` | Runs tests (race detector by default) and generates a coverage report using [`lazyguru/go-coverage-action`](https://github.com/lazyguru/go-coverage-action). Coverage comments are added to PRs from the same repository |
 | `golangci` | Runs [`golangci-lint`](https://github.com/golangci/golangci-lint-action) with the `latest` version |
 | `security` | Runs a Trivy filesystem scan. Skipped on pull requests |
 
