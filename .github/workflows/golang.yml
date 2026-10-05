@@ -130,6 +130,10 @@ jobs:
         with:
           fail-coverage: ${{ inputs.fail-coverage }}
           cover-pkg: ./...
+          # Race instrumentation requires the atomic coverage counter; the
+          # action defaults to count, which go test rejects with -race
+          # ("-covermode must be \"atomic\", not \"count\", when -race is enabled").
+          cover-mode: ${{ inputs.race && 'atomic' || 'count' }}
           # The action has no dedicated race flag: it takes go test arguments
           # as a JSON array. Race is on by default (race: false opts out).
           test-args: ${{ inputs.race && '["-race"]' || '[]' }}
